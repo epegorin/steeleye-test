@@ -1,0 +1,2 @@
+# zip and xml files downloaded through the process should not be tracked
+/downloads/
