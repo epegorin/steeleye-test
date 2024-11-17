@@ -76,7 +76,7 @@ def read_local_xml(read_path: str = 'downloads/') -> str:
 
     return xml_file
 
-def parse_xml(xml: str = None, header: list = None) -> list:
+def parse_xml(xml: str, header: list) -> list:
     """
     Given an an XML file as string, it will find all the required attributes inside FinInstrm > FinInstrmGnlAttrbts > [...]
     Args:
