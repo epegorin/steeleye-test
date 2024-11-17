@@ -42,16 +42,14 @@ file_name = 'transformed_2_dltins.csv'
 target_path = ''
 target = 's3'
 
-if target == 's3':
-    # AWS specific variables
+if target == 's3': # AWS specific variables
     aws_bucket_name = 'steeleye_test'
     aws_region = 'eu-central-1'
     aws_access_key = '<iam_user_access_key>' #Key-pairs should not be hardcoded in the code, but since creating an aws profile is not avaiable for this scenario, this will be sufficient
     aws_secret_key = '<iam_user_secret_key>'
     client_kwargs = {'region_name':aws_region, 'aws_access_key_id':aws_access_key, 'aws_secret_access_key':aws_secret_key}
     target_path = aws_bucket_name # This assumes that the azure container and the s3 bucket have the same name
-elif target == 'azure':
-    #Azure specific variables
+elif target == 'azure': #Azure specific variables
     account_name = "steeleye"
     account_key = "<account-key>"
     azure_container_name = "steeleye_test"
