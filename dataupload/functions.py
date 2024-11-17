@@ -1,0 +1,18 @@
+import fsspec
+import boto3
+
+# Option 1, using BOTO3 library. Will only work for S3, not azure (it is the one i use regularly and i'm most confident will work for at least S3)
+def boto3_upload(aws_region: str, aws_access_key: str, aws_secret_key: str, aws_bucket_name: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/') -> None:
+    try:
+        s3_client = boto3.client(service_name='s3', region_name=aws_region, aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+        s3_client.upload_file(csv_local_path+file_name, aws_bucket_name, file_name)
+    except Exception as e:
+        print(f'An unexpected error occurred: {e}')
+
+## ------------------------ ##
+
+# Option 2, using fsspec to upload to either S3 or Azure Blob.
+def fsspec_upload(client_kwargs: dict, target_path: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/', target: str = 's3') -> None:
+    fs = fsspec.filesystem(target, client_kwargs = client_kwargs)
+    fs.cp(csv_local_path+file_name, f'{target_path}/{file_name}')
+    # TODO add copy check
