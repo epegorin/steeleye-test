@@ -17,7 +17,7 @@ def get_primary_xml(url: str) -> str:
     # TODO add loggings
 
     xml = urlopen(url=url)
-    decoded_xml = xml.read().decode("utf-8")
+    decoded_xml = xml.read().decode('utf-8')
 
     return decoded_xml
 
@@ -33,9 +33,9 @@ def get_secondary_url_from_xml(decoded_xml: str) -> str:
     # TODO add if clause for invalid keys in XML
     # TODO add loggins
 
-    data = BeautifulSoup(decoded_xml, features="xml")
-    doc_data = data.find_all("doc")
-    secondary_download_link = doc_data[1].find("str", {"name": "download_link"}).text
+    data = BeautifulSoup(decoded_xml, features='xml')
+    doc_data = data.find_all('doc')
+    secondary_download_link = doc_data[1].find('str', {'name': 'download_link'}).text
 
     return secondary_download_link
 
@@ -50,8 +50,9 @@ def get_secondary_xml(url: str) -> None:
     - None
     """
     # TODO add if not zip clause
+    # TODO guarantee only 1 xml is created
 
-    zip_filename = url.split("/")[-1]
-    urlretrieve(url=url, filename=f"downloads/{zip_filename}")
-    with ZipFile(f"downloads/{zip_filename}", "r") as zObject:
-        zObject.extractall(path="downloads/")
+    zip_filename = url.split('/')[-1]
+    urlretrieve(url=url, filename=f'downloads/{zip_filename}')
+    with ZipFile(f'downloads/{zip_filename}', 'r') as zObject:
+        zObject.extractall(path='downloads/')
