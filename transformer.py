@@ -1,20 +1,28 @@
 import argparse
+import logging
 
 from dataingest.functions import get_primary_xml, get_secondary_url_from_xml, get_secondary_xml
 from dataparse.functions import read_local_xml, parse_xml
 # from dataupload.functions import fsspec_upload
 
 from dataparse.functions import FinAttrClass
+logger = logging.getLogger('transformer')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main(target: str, url: str):
     # Step 1, data ingest
+    logger.info("Step 1 - Data Ingest")
 
     # url = 'https://registers.esma.europa.eu/solr/esma_registers_firds_files/select?q=*&fq=publication_date:%5B2021-01-17T00:00:00Z+TO+2021-01-19T23:59:59Z%5D&wt=xml&indent=true&start=0&rows=100'
+    logger.info(f"URL to get XML from: {url}")
 
     decoded_xml = get_primary_xml(url=url)
+    logger.info("XML converted to local string")
     secondary_download_link = get_secondary_url_from_xml(decoded_xml=decoded_xml)
+    logger.info("URL for the second file extracted from the first XML")
 
     get_secondary_xml(url=secondary_download_link)
+    logger.info("Secondary XML extracted from the downloaded zip")
 
     # Step 2, data parse
 
