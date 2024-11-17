@@ -70,14 +70,6 @@ def parse_xml(xml: str = None, header: list = None) -> list:
     # fin_instrm_df = pd.DataFrame(table, columns = header)
     return table
 
-# def transform_csv(func, read_path: str = 'downloads/raw_dltins.csv', store_path: str = 'downloads/transformed_dltins.csv', source_column: str = None, target_column: str = None):
-
-#     df = csv_to_df(read_path=read_path, delimiter=';')
-#     df[target_column] = df[source_column].apply(func)
-#     df_to_csv(df=df, store_path=store_path, delimiter=';')
-
-# TODO CREATE CLASS OF TYPE DATAFRAME WITH METHODS FOR READ AND WRITE
-
 header = ['FinInstrmGnlAttrbts.Id', 'FinInstrmGnlAttrbts.FullNm', 'FinInstrmGnlAttrbts.ClssfctnTp', 'FinInstrmGnlAttrbts.CmmdtyDerivInd', 'FinInstrmGnlAttrbts.NtnlCcy', 'Issr']
 
 xml_file = read_local_xml(read_path = 'downloads/')
@@ -94,10 +86,5 @@ fin_instrm.contains_a('a_count', 'contains_a')
 fin_instrm.store_csv('downloads/transformed_2_dltins.csv')
 
 # fin_instrm_df = fin_instrm.df
-# print(fin_instrm_df)
-
-# transform_csv(func = count_a, read_path='downloads/raw_dltins.csv', store_path = 'downloads/transformed_1_dltins.csv', source_column = 'FinInstrmGnlAttrbts.FullNm', target_column = 'a_count')
-# transform_csv(func = contains_a, read_path='downloads/transformed_1_dltins.csv', store_path = 'downloads/transformed_2_dltins.csv', source_column = 'a_count', target_column = 'contains_a')
 
 # fin_instrm_df1 = FinAttrClass.read_csv('downloads/raw_dltins.csv', columns=header)
-# print(fin_instrm_df1.df)
