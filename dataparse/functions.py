@@ -17,9 +17,11 @@ class FinAttrClass:
         self.df[target_column] = self.df[source_column].apply(lambda x: 'YES' if x > 0 else 'NO')
 
     @classmethod
-    def read_csv(cls, read_path, columns):
-        data = pd.read_csv(read_path, sep=';')
-        return cls(data.to_dict(orient='records'), columns)
+    def read_csv(cls, read_path):
+        df = pd.read_csv(read_path, sep=';')
+        data = df.to_dict(orient='records')
+        columns = df.columns.tolist()
+        return cls(data = data, columns = columns)
 
 def read_local_xml(read_path: str = 'downloads/') -> str:
     """
@@ -79,12 +81,12 @@ fin_instrm = FinAttrClass(data = fin_instrm_table, columns = header)
 
 fin_instrm.store_csv('downloads/raw_dltins.csv')
 
-fin_instrm.count_a('FinInstrmGnlAttrbts.FullNm', 'a_count')
-fin_instrm.store_csv('downloads/transformed_1_dltins.csv')
+raw_dltins = FinAttrClass.read_csv('downloads/raw_dltins.csv')
+raw_dltins.count_a('FinInstrmGnlAttrbts.FullNm', 'a_count')
+raw_dltins.store_csv('downloads/transformed_1_dltins.csv')
 
-fin_instrm.contains_a('a_count', 'contains_a')
-fin_instrm.store_csv('downloads/transformed_2_dltins.csv')
+transformed_1_dltins = FinAttrClass.read_csv('downloads/transformed_1_dltins.csv')
+transformed_1_dltins.contains_a('a_count', 'contains_a')
+transformed_1_dltins.store_csv('downloads/transformed_2_dltins.csv')
 
-# fin_instrm_df = fin_instrm.df
-
-# fin_instrm_df1 = FinAttrClass.read_csv('downloads/raw_dltins.csv', columns=header)
+transformed_2_dltins = FinAttrClass.read_csv('downloads/transformed_1_dltins.csv')
