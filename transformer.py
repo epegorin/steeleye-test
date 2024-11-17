@@ -66,8 +66,8 @@ def main(target: str, url: str):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('target', type=str, default='s3')
-    parser.add_argument('url', type=str, default='https://registers.esma.europa.eu/solr/esma_registers_firds_files/select?q=*&fq=publication_date:%5B2021-01-17T00:00:00Z+TO+2021-01-19T23:59:59Z%5D&wt=xml&indent=true&start=0&rows=100')
+    parser.add_argument('target', type=str)
+    parser.add_argument('url', type=str)
     args = parser.parse_args()
 
     main(args.target, args.url)
