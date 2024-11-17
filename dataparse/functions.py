@@ -7,17 +7,52 @@ class FinAttrClass:
     def __init__(self, data, columns):
         self.df = pd.DataFrame(data=data, columns=columns)
 
-    def store_csv(self, store_path):
-        return self.df.to_csv(store_path, index=False, sep = ';')
-    
-    def count_a(self, source_column, target_column):
-        self.df[target_column] = self.df[source_column].apply(lambda x: str(x).count('a'))
+    def store_csv(self, store_path: str):
+        """
+        Given a store_path as input, use pandas to_csv() function to store the csv. The delimiter is always set as ';'
+        Args:
+        - store_path (str): folder path to where the csv will be stored
+        Return:
+        - None
+        """
 
-    def contains_a(self, source_column, target_column):
+        self.df.to_csv(store_path, index=False, sep = ';')
+    
+    def count_char(self, source_column: str, target_column: str, target_char: str = 'a'):
+        """
+        Creates a new column by the name of the target_column that will be the result of the count of target_char in the source_column
+        Args:
+        - source_column (str): column that will receive the aggregation
+        - target_column (str): column to store the result of the aggregation
+        - target_char (str): the char that will be counted
+        Return:
+        - None
+        """
+
+        self.df[target_column] = self.df[source_column].apply(lambda x: str(x).count(target_char))
+
+    def contains_char(self, source_column: str, target_column: str):
+        """
+        Creates a new column by the name of the target_column that will be return YES/NO wheter the source column is > 0 or no
+        Args:
+        - source_column (str): column that will receive the comparison
+        - target_column (str): column to store the result of the aggregation
+        Return:
+        - None
+        """
+
         self.df[target_column] = self.df[source_column].apply(lambda x: 'YES' if x > 0 else 'NO')
 
     @classmethod
     def read_csv(cls, read_path):
+        """
+        Given an read_path, this will read the csv in that path, infer the columns and return a class instance with that data and columns
+        Args:
+        - read_path (str): folder path to where the csv will be read
+        Return:
+        - class instance with the data and columns defined
+        """
+                
         df = pd.read_csv(read_path, sep=';')
         data = df.to_dict(orient='records')
         columns = df.columns.tolist()
@@ -46,8 +81,11 @@ def parse_xml(xml: str = None, header: list = None) -> list:
     Given an an XML file as string, it will find all the required attributes inside FinInstrm > FinInstrmGnlAttrbts > [...]
     Args:
     - xml (str): xml parsed as string
+    - header (list):    this list serves the double purpose. 
+                        First being the column names
+                        Using split('.')[0], we can get the the search-key for the parsed xml
     Return:
-    - xml_file (pd.DataFrame): after selecting only the desired fields from the xml, they are stored as a Pandas Dataframe
+    - table (list): after selecting only the desired fields from the xml, they are stored as a bi-dimensional list that can be used to create a Pandas DataFrame
     """
 
     table = []
@@ -69,24 +107,4 @@ def parse_xml(xml: str = None, header: list = None) -> list:
 
         table.append(pd.Series(row))
 
-    # fin_instrm_df = pd.DataFrame(table, columns = header)
     return table
-
-header = ['FinInstrmGnlAttrbts.Id', 'FinInstrmGnlAttrbts.FullNm', 'FinInstrmGnlAttrbts.ClssfctnTp', 'FinInstrmGnlAttrbts.CmmdtyDerivInd', 'FinInstrmGnlAttrbts.NtnlCcy', 'Issr']
-
-xml_file = read_local_xml(read_path = 'downloads/')
-fin_instrm_table = parse_xml(xml = xml_file, header=header)
-
-fin_instrm = FinAttrClass(data = fin_instrm_table, columns = header)
-
-fin_instrm.store_csv('downloads/raw_dltins.csv')
-
-raw_dltins = FinAttrClass.read_csv('downloads/raw_dltins.csv')
-raw_dltins.count_a('FinInstrmGnlAttrbts.FullNm', 'a_count')
-raw_dltins.store_csv('downloads/transformed_1_dltins.csv')
-
-transformed_1_dltins = FinAttrClass.read_csv('downloads/transformed_1_dltins.csv')
-transformed_1_dltins.contains_a('a_count', 'contains_a')
-transformed_1_dltins.store_csv('downloads/transformed_2_dltins.csv')
-
-transformed_2_dltins = FinAttrClass.read_csv('downloads/transformed_1_dltins.csv')
