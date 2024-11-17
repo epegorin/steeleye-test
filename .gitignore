@@ -1,2 +1,6 @@
 # zip and xml files downloaded through the process should not be tracked
 /downloads/
+
+**/__pycache__/
+**/.mypy_cache/
+**/.ruff_cache/
