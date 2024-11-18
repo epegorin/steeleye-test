@@ -56,8 +56,3 @@ def test_parse_xml(sample_secondary_xml):
     table = parse_xml(logger, sample_secondary_xml, header)
 
     assert (table[0] == ['AT0000A2BJ35', 'Turbo Long Open End Zertifikat auf SAP SE', 'RFSTCB', 'false', 'EUR', '529900M2F7D5795H1A49']).all()
-
-
-
-# TODO test local xml ingest
-# TODO test local csv ingest
