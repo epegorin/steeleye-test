@@ -26,9 +26,9 @@ def main(target: str, url: str):
 
     xml_file = read_local_xml(logger, read_path = 'downloads/')
     fin_instrm_table = parse_xml(logger, xml = xml_file, header=header)
-
+    print(fin_instrm_table)
     fin_instrm = FinAttrClass(data = fin_instrm_table, columns = header)
-    
+
     fin_instrm.store_csv(logger, store_path='downloads/raw_dltins.csv')
 
     raw_dltins = FinAttrClass.read_csv(logger, read_path = 'downloads/raw_dltins.csv')
