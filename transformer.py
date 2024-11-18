@@ -81,6 +81,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.target, args.url)
-
-#adding a comment to test the trigger upon merge PR
-#adding a comment to test the trigger upon merge PR
