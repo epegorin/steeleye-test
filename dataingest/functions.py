@@ -36,6 +36,8 @@ def get_secondary_url_from_xml(logger: logging.Logger, decoded_xml: str) -> str:
     - secondary_download_link (str): the second download URL from the xml, identified by "download_link" in the XML
     """
     # TODO add if clause for invalid keys in XML
+    
+    secondary_download_link = ''
 
     data = BeautifulSoup(decoded_xml, features='xml')
     try:
