@@ -28,6 +28,11 @@ jobs:
       - name: Install bump2version
         run: pip install bump2version
 
+      - name: Set up Git user
+        run: |
+          git config --global user.name "epegorin"
+          git config --global user.email "enzopegorin@gmail.com"
+
       - name: Bump version
         run: |
           bump2version minor
