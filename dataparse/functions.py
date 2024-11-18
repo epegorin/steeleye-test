@@ -77,7 +77,7 @@ def read_local_xml(logger: logging.Logger, read_path: str = 'downloads/') -> str
         raise ValueError(f'None or more than 1 XML files were found in directory: {read_path}')        
 
     with open(xml_files[0], 'r') as f:
-        xml_file = f.read(4000) # TODO remove 4000
+        xml_file = f.read()
 
     logger.info(f'Local XML read from {read_path} and ready to be parsed')
     return xml_file

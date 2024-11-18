@@ -14,7 +14,6 @@ def get_primary_xml(logger: logging.Logger, url: str) -> str:
     Return:
     - decoded_xml (str): received XML, decoded with utf-8
     """
-    # TODO add if clause for invalid URL
 
     logger.info(f'URL to get XML from: {url}')
     try:
@@ -35,7 +34,6 @@ def get_secondary_url_from_xml(logger: logging.Logger, decoded_xml: str) -> str:
     Return:
     - secondary_download_link (str): the second download URL from the xml, identified by "download_link" in the XML
     """
-    # TODO add if clause for invalid keys in XML
     
     secondary_download_link = ''
 
@@ -61,8 +59,6 @@ def get_secondary_xml(logger: logging.Logger, url: str, store_path: str = 'downl
     Return:
     - None
     """
-    # TODO add if not zip clause
-    # TODO guarantee only 1 xml is created
 
     zip_filename = url.split('/')[-1]
     urlretrieve(url=url, filename=store_path+zip_filename)

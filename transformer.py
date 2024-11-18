@@ -68,7 +68,7 @@ def main(target: str, url: str):
     #     client_kwargs = {'account_name':account_name, 'account_key':account_key}
     #     target_path = f'azure://{account_name}:{account_key}@{azure_container_name}'
     # else:
-    #     # TODO add invalid target prompt
+    #     logging.info(f'Invalid input {target}')
     #     pass
 
     # fsspec_upload(client_kwargs, target_path, file_name, csv_local_path, target)
