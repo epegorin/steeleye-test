@@ -1,8 +1,9 @@
 import fsspec
 import boto3
+import logging
 
 # Option 1, using BOTO3 library. Will only work for S3, not azure (it is the one i use regularly and i'm most confident will work for at least S3)
-def boto3_upload(aws_region: str, aws_access_key: str, aws_secret_key: str, aws_bucket_name: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/') -> None:
+def boto3_upload(logger: logging.Logger, aws_region: str, aws_access_key: str, aws_secret_key: str, aws_bucket_name: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/') -> None:
     """
     Upload a local csv file to a remote s3 bucket using BOTO3 library
     Args:
@@ -16,16 +17,18 @@ def boto3_upload(aws_region: str, aws_access_key: str, aws_secret_key: str, aws_
     - None
     """
 
+    logger.info(f'Uploading file {file_name} into target S3 bucket: {aws_bucket_name}')
     try:
         s3_client = boto3.client(service_name='s3', region_name=aws_region, aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         s3_client.upload_file(csv_local_path+file_name, aws_bucket_name, file_name)
+        logger.info('Upload was succesfull')
     except Exception as e:
-        print(f'An unexpected error occurred: {e}')
+        logger.error(f'An unexpected error occurred: {e}')
 
 ## ------------------------ ##
 
 # Option 2, using fsspec to upload to either S3 or Azure Blob.
-def fsspec_upload(client_kwargs: dict, target_path: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/', target: str = 's3') -> None:
+def fsspec_upload(logger: logging.Logger, client_kwargs: dict, target_path: str, file_name: str = 'transformed_2_dltins.csv', csv_local_path: str = 'downloads/', target: str = 's3') -> None:
     """
     Upload a local csv file to a remote s3 bucket or azure container using fsspec library
     Args:
@@ -37,6 +40,11 @@ def fsspec_upload(client_kwargs: dict, target_path: str, file_name: str = 'trans
     Return:
     - None
     """
-    fs = fsspec.filesystem(target, client_kwargs = client_kwargs)
-    fs.cp(csv_local_path+file_name, f'{target_path}/{file_name}')
-    # TODO add copy check
+
+    logger.info(f'Uploading file {file_name} into target: {target}')
+    try:
+        fs = fsspec.filesystem(target, client_kwargs = client_kwargs)
+        fs.cp(csv_local_path+file_name, f'{target_path}/{file_name}')
+        logger.info('Upload was succesfull')
+    except Exception as e:
+        logger.error(f'An unexpected error occurred: {e}')

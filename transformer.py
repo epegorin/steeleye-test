@@ -6,46 +6,43 @@ from dataparse.functions import read_local_xml, parse_xml
 # from dataupload.functions import fsspec_upload
 
 from dataparse.functions import FinAttrClass
+
 logger = logging.getLogger('transformer')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main(target: str, url: str):
     # Step 1, data ingest
-    logger.info("Step 1 - Data Ingest")
+    logger.info('Step 1 - Data Ingest')
 
     # url = 'https://registers.esma.europa.eu/solr/esma_registers_firds_files/select?q=*&fq=publication_date:%5B2021-01-17T00:00:00Z+TO+2021-01-19T23:59:59Z%5D&wt=xml&indent=true&start=0&rows=100'
-    logger.info(f"URL to get XML from: {url}")
-
-    decoded_xml = get_primary_xml(url=url)
-    logger.info("XML converted to local string")
-    secondary_download_link = get_secondary_url_from_xml(decoded_xml=decoded_xml)
-    logger.info("URL for the second file extracted from the first XML")
-
-    get_secondary_xml(url=secondary_download_link)
-    logger.info("Secondary XML extracted from the downloaded zip")
+    decoded_xml = get_primary_xml(logger, url=url)
+    secondary_download_link = get_secondary_url_from_xml(logger, decoded_xml=decoded_xml)
+    get_secondary_xml(logger, url=secondary_download_link, store_path='downloads/')
 
     # Step 2, data parse
+    logger.info('Step 2 - Data Parse')
 
     header = ['FinInstrmGnlAttrbts.Id', 'FinInstrmGnlAttrbts.FullNm', 'FinInstrmGnlAttrbts.ClssfctnTp', 'FinInstrmGnlAttrbts.CmmdtyDerivInd', 'FinInstrmGnlAttrbts.NtnlCcy', 'Issr']
 
-    xml_file = read_local_xml(read_path = 'downloads/')
-    fin_instrm_table = parse_xml(xml = xml_file, header=header)
+    xml_file = read_local_xml(logger, read_path = 'downloads/')
+    fin_instrm_table = parse_xml(logger, xml = xml_file, header=header)
 
     fin_instrm = FinAttrClass(data = fin_instrm_table, columns = header)
+    
+    fin_instrm.store_csv(logger, store_path='downloads/raw_dltins.csv')
 
-    fin_instrm.store_csv('downloads/raw_dltins.csv')
-
-    raw_dltins = FinAttrClass.read_csv('downloads/raw_dltins.csv')
+    raw_dltins = FinAttrClass.read_csv(logger, read_path = 'downloads/raw_dltins.csv')
     raw_dltins.count_char('FinInstrmGnlAttrbts.FullNm', 'a_count', 'a')
-    raw_dltins.store_csv('downloads/transformed_1_dltins.csv')
+    raw_dltins.store_csv(logger, store_path='downloads/transformed_1_dltins.csv')
 
-    transformed_1_dltins = FinAttrClass.read_csv('downloads/transformed_1_dltins.csv')
+    transformed_1_dltins = FinAttrClass.read_csv(logger, read_path = 'downloads/transformed_1_dltins.csv')
     transformed_1_dltins.contains_char('a_count', 'contains_a')
-    transformed_1_dltins.store_csv('downloads/transformed_2_dltins.csv')
+    transformed_1_dltins.store_csv(logger, store_path='downloads/transformed_2_dltins.csv')
 
-    # transformed_2_dltins = FinAttrClass.read_csv('downloads/transformed_2_dltins.csv')
+    # transformed_2_dltins = FinAttrClass.read_csv(logger, read_path = 'downloads/transformed_2_dltins.csv')
 
     # Step 3, data upload
+    logger.info('Step 3 - Data Upload')
 
     # General variables
     # csv_local_path = 'downloads/'
@@ -60,18 +57,18 @@ def main(target: str, url: str):
     #     client_kwargs = {'region_name':aws_region, 'aws_access_key_id':aws_access_key, 'aws_secret_access_key':aws_secret_key}
     #     target_path = aws_bucket_name # This assumes that the azure container and the s3 bucket have the same name
     # elif target == 'azure': #Azure specific variables
-    #     account_name = "steeleye"
-    #     account_key = "<account-key>"
-    #     azure_container_name = "steeleye_test"
+    #     account_name = 'steeleye'
+    #     account_key = '<account-key>'
+    #     azure_container_name = 'steeleye_test'
     #     client_kwargs = {'account_name':account_name, 'account_key':account_key}
-    #     target_path = f"azure://{account_name}:{account_key}@{azure_container_name}"
+    #     target_path = f'azure://{account_name}:{account_key}@{azure_container_name}'
     # else:
     #     # TODO add invalid target prompt
     #     pass
 
     # fsspec_upload(client_kwargs, target_path, file_name, csv_local_path, target)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('target', type=str)

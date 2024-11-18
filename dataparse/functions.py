@@ -1,4 +1,5 @@
 import glob
+import logging
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -7,7 +8,7 @@ class FinAttrClass:
     def __init__(self, data, columns):
         self.df = pd.DataFrame(data=data, columns=columns)
 
-    def store_csv(self, store_path: str):
+    def store_csv(self, logger: logging.Logger, store_path: str):
         """
         Given a store_path as input, use pandas to_csv() function to store the csv. The delimiter is always set as ';'
         Args:
@@ -17,6 +18,7 @@ class FinAttrClass:
         """
 
         self.df.to_csv(store_path, index=False, sep = ';')
+        logger.info(f'Pandas DF stored as csv at: {store_path}')
     
     def count_char(self, source_column: str, target_column: str, target_char: str = 'a'):
         """
@@ -44,7 +46,7 @@ class FinAttrClass:
         self.df[target_column] = self.df[source_column].apply(lambda x: 'YES' if x > 0 else 'NO')
 
     @classmethod
-    def read_csv(cls, read_path):
+    def read_csv(cls, logger: logging.Logger, read_path):
         """
         Given an read_path, this will read the csv in that path, infer the columns and return a class instance with that data and columns
         Args:
@@ -52,13 +54,15 @@ class FinAttrClass:
         Return:
         - class instance with the data and columns defined
         """
-                
+        logger.info(f'Reading CSV from: {read_path} into CSV')
+
         df = pd.read_csv(read_path, sep=';')
         data = df.to_dict(orient='records')
         columns = df.columns.tolist()
+        
         return cls(data = data, columns = columns)
 
-def read_local_xml(read_path: str = 'downloads/') -> str:
+def read_local_xml(logger: logging.Logger, read_path: str = 'downloads/') -> str:
     """
     Given an read_path as input, it will read all XML files in the folder and keep the first, then return the xml as a string
     Args:
@@ -69,14 +73,16 @@ def read_local_xml(read_path: str = 'downloads/') -> str:
 
     xml_files = glob.glob(f'{read_path}*.xml')
 
-    # TODO if length of xml_files != 1 ...
+    if len(xml_files) != 1:
+        raise ValueError(f'None or more than 1 XML files were found in directory: {read_path}')        
 
     with open(xml_files[0], 'r') as f:
         xml_file = f.read(4000) # TODO remove 4000
 
+    logger.info(f'Local XML read from {read_path} and ready to be parsed')
     return xml_file
 
-def parse_xml(xml: str, header: list) -> list:
+def parse_xml(logger: logging.Logger, xml: str, header: list) -> list:
     """
     Given an an XML file as string, it will find all the required attributes inside FinInstrm > FinInstrmGnlAttrbts > [...]
     Args:
@@ -91,20 +97,33 @@ def parse_xml(xml: str, header: list) -> list:
     table = []
 
     data = BeautifulSoup(xml, features='xml')
+    try:
+        fin_instrm = data.find_all('FinInstrm')    
+        if len(fin_instrm) <= 0:
+            raise ValueError('Could not find tag "FinInstrm" in XML file')
 
-    fin_instrm = data.find_all('FinInstrm')
+        for fin_instrm_item in fin_instrm:
+            fin_instrm_gnl_attrbts = fin_instrm_item.find('FinInstrmGnlAttrbts')
+            if len(fin_instrm_gnl_attrbts) <= 0:
+                raise ValueError('Could not find tag "FinInstrmGnlAttrbts" in XML file')
 
-    for fin_instrm_item in fin_instrm:
-        fin_instrm_gnl_attrbts = fin_instrm_item.find('FinInstrmGnlAttrbts')
+            row = {}
+            for attribute in header:
+                if attribute == 'Issr':
+                    row[attribute] = fin_instrm_item.find('Issr').text
+                    if len(row[attribute]) <= 0:
+                        raise ValueError('Could not find tag "Issr" in XML file')
+                else:
+                    tag = attribute.split('.'[-1])
+                    row[attribute] = fin_instrm_gnl_attrbts.find(tag).text
+                    if len(row[attribute]) <= 0:
+                        raise ValueError(f'Could not find tag "{tag}" in XML file')
 
-        row = {}
-        for attribute in header:
-            if attribute == 'Issr':
-                row[attribute] = fin_instrm_item.find('Issr').text
-            else:
-                row[attribute] = fin_instrm_gnl_attrbts.find(attribute.split('.'[-1])).text
+
+            table.append(pd.Series(row))
+    except Exception as e:
+        logger.error(f"An error occurred while searching for tags in the xml: {e}")
 
 
-        table.append(pd.Series(row))
-
+    logger.info('XML parsed and converted into table')
     return table
