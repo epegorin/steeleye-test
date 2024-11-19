@@ -2,6 +2,12 @@
 This repo is intended to host a solution to host an ETL solution for a proposed challenge.
 The proposed solution integrates Python, Pandas, and AWS/Azure
 
+## How to run
+To execute all steps of the ETL, please run the command:
+python transformer.py "s3" "https://registers.esma.europa.eu/solr/esma_registers_firds_files/select?q=*&fq=publication_date:%5B2021-01-17T00:00:00Z+TO+2021-01-19T23:59:59Z%5D&wt=xml&indent=true&start=0&rows=100"
+
+You can find the required libraries in the requirements.txt file
+
 ## Requirements
 
 1. The code must download the xml from this link ->
